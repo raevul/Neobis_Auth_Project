@@ -24,18 +24,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')
         if password != confirm_password:
-            raise ValidationError({"data": "Password don't match"})
+            raise ValidationError({"data": "Пароли не совпадают"})
         if User.objects.filter(email=self.validated_data['email']).exists():
-            raise ValidationError({"data": "Email already exist"})
+            raise ValidationError({"data": "Этот аккаунт уже зарегистирирован"})
 
         user = User.objects.create(**validated_data)
         user.set_password(password)
         user.save()
         UserProfile.objects.create(user=user, username=user.username, email=user.email)
         return user
-
-
-class LoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username', 'password']
