@@ -7,7 +7,7 @@ import os
 
 schema_view = views.get_schema_view(
     openapi.Info(
-        title="Tour API",
+        title="Auth API",
         default_version="v1",
         description="""In this project implemented registration, log in, logout,
         reset password, change password and username logics.

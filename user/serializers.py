@@ -20,28 +20,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         model = User
         fields = ['username', 'email', 'password', 'confirm_password']
 
-    def validate_password(self, password):
-        self.validate_special_character(password)
-        self.validate_digit(password)
-        self.validate_upper_lower_letters(password)
-        return password
-
-    def validate_special_character(self, password):
-        special_characters = "!@#$%^&*(),.:|<>"
-        if not any(char in special_characters for char in password):
-            raise ValidationError({"data": "At least one special character"})
-
-    def validate_digit(self, password):
-        if not any(char.isdigit() for char in password):
-            raise ValidationError({"data": "At least one digit"})
-
-    def validate_upper_lower_letters(self, password):
-        upper_letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        lower_letters = 'abcdefghijklmnopqrstuvwxyz'
-        passwd = upper_letters + lower_letters
-        if not any(char in passwd for char in password):
-            raise ValidationError({"data": "Lowercase and uppercase letters"})
-
     def create(self, validated_data):
         password = validated_data.pop('password')
         confirm_password = validated_data.pop('confirm_password')
@@ -55,3 +33,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         UserProfile.objects.create(user=user, username=user.username, email=user.email)
         return user
+
+
+class LoginSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'password']

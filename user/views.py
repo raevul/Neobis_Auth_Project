@@ -1,14 +1,18 @@
 from django.contrib.auth.models import User
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate, login
 
-from .serializers import UserProfileSerializer, RegisterSerializer
+from .serializers import UserProfileSerializer, RegisterSerializer, LoginSerializer
 from .models import UserProfile
+from .permissions import CurrentUserOrAdminOrReadOnly
 
 
 class RegisterAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, *args, **kwargs):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -19,24 +23,34 @@ class RegisterAPIView(APIView):
 
 
 class LoginAPIView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request, *args, **kwargs):
-        username = request.data["username"]
-        password = request.data["password"]
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            return Response({"data": "User does not exist"}, status=status.HTTP_404_NOT_FOUND)
-        if not user.check_password(password):
-            return Response({"data": "Incorrect password"}, status=status.HTTP_400_BAD_REQUEST)
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        user = User.objects.filter(username=username).first()
+        if user is None or not user.check_password(password):
+            return Response({'data': 'Неверные учетные данные'}, status=status.HTTP_401_UNAUTHORIZED)
         token = Token.objects.get(user=user)
-        return Response({"data": "Successfully login"}, status=status.HTTP_200_OK)
+        return Response({"token": token.key}, status=status.HTTP_200_OK)
 
 
 class UserProfileAPIView(APIView):
+    permission_classes = [CurrentUserOrAdminOrReadOnly]
+
     def get(self, request, *args, **kwargs):
         try:
-            user = UserProfile.objects.get(id=kwargs['user_id'])
+            user = UserProfile.objects.get(user=request.user)
         except UserProfile.DoesNotExist:
             return Response({"data": "Profile does not exist"}, status=status.HTTP_404_NOT_FOUND)
         serializer = UserProfileSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class LogoutAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, format=None):
+        request.user.auth_token.delete()
+        return Response({"data": "You are logged out"}, status=status.HTTP_200_OK)
