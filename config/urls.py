@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path, include
 from drf_yasg import views, openapi
 from rest_framework import permissions
@@ -26,3 +27,4 @@ urlpatterns = [
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('', include('user.urls')),
 ]
+urlpatterns += staticfiles_urlpatterns()
