@@ -14,13 +14,13 @@ services:
   app:
     build: .
     volumes:
-      - .:config
+      - .:/config
       - ./static:/app/static
     ports:
       - "8000:8000"
     env_file:
       - .env
-    command: bash -c "wait-for-it db:5432 -- gunicorn config.wsgi:application -w 4 -b 0.0.0.0:8000"
+    command: bash -c "python3 manage.py collectstatic --no-input && python3 manage.py migrate && gunicorn config.wsgi:application -w 4 -b 0.0.0.0:8000"
     depends_on:
       - db
 

@@ -13,7 +13,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-RUN python3 manage.py migrate
-RUN python3 manage.py collectstatic --no-input
-
 EXPOSE 8000
