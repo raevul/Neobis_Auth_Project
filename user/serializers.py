@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
@@ -14,7 +15,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(write_only=True)
     password = serializers.CharField(write_only=True, min_length=8, max_length=15)
-    confirm_password = serializers.CharField(write_only=True, min_length=8, max_length=16)
+    confirm_password = serializers.CharField(write_only=True, min_length=8, max_length=15)
 
     class Meta:
         model = User
@@ -33,3 +34,32 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
         UserProfile.objects.create(user=user, username=user.username, email=user.email)
         return user
+
+
+class LoginSerilizer(serializers.Serializer):
+    username = serializers.CharField(write_only=True)
+    password = serializers.CharField(write_only=True, min_length=8, max_length=15)
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+
+        if not username or not password:
+            raise ValidationError("Введите имя пользователя и пароль")
+        user = authenticate(username=username, password=password)
+        if user is None:
+            raise ValidationError("Чтобы авторизоваться нужно потвердить аккаунт")
+        user.save()
+        return {'username': username, 'password': password}
+
+
+class LogoutSerializer(serializers.Serializer):
+    token = serializers.CharField()
+
+
+class EmailVerifySerializer(serializers.Serializer):
+    message = serializers.CharField()
+
+
+class TokenSerializer(serializers.Serializer):
+    token = serializers.CharField()
