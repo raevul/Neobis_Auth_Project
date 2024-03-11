@@ -68,6 +68,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
