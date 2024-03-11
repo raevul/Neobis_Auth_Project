@@ -211,8 +211,8 @@ class LogoutAPIView(APIView):
       - {"message": "Вы вышли из системы"}
 
     # Неудача
-    - {"error": "Токен пользователя не найден"}
     - {"error": "Произошла ошибка при выходе из системы"}
+    - {"detail": "Недопустимый токен."}
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -221,14 +221,10 @@ class LogoutAPIView(APIView):
             openapi.Parameter('token', openapi.IN_QUERY, description='Токен пользователя', type=openapi.TYPE_STRING)],
         responses={200: "Success", 400: "Bad request"}
     )
-    def post(self, request, *args, **kwargs):
-        token = request.query_params.get('token')
-
-        if not token:
-            return Response({"error": "Токен пользователя не найден"}, status=status.HTTP_400_BAD_REQUEST)
-
+    def get(self, request, format=None):
         try:
-            request.auth.delete()
-            return Response({"message": "Вы вышли из системы"}, status=status.HTTP_200_OK)
+            request.user.auth_token.delete()
         except Exception as e:
-            return Response({"error": "Произошла ошибка при выходе из системы"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Произошла ошибка при выходе из системы"})
+        return Response({"message": "Вы вышли из системы"})
+
