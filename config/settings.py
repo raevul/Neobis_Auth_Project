@@ -41,7 +41,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
-    'user.middleware.ProxyMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -165,6 +164,14 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://localhost:8000",
+    "http://0.0.0.0:8000",
+    "https://nataliya-backender.org.kg",
+    "https://www.nataliya-backender.org.kg",
+    "http://68.183.184.188:8000",
+]
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:3000',
     "http://localhost:8000",
     "http://0.0.0.0:8000",
     "https://nataliya-backender.org.kg",
